@@ -16,10 +16,33 @@
  */
 
 #import "AppDelegate.h"
+#import <AeroGear.h>
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    
+    AGKeyStoreCryptoConfig *config = [[AGKeyStoreCryptoConfig alloc] init];
+    [config setAlias:@"alias"];
+    [config setPassword:@"passphrase"];
+
+    id<AGEncryptionService> service = [[AGKeyManager manager] keyService:config];
+    
+    NSData *dataToEncrypt = [@"password" dataUsingEncoding:NSUTF8StringEncoding];
+    
+    NSData *encryptedData = [service encrypt:dataToEncrypt];
+    
+    NSData* decryptedData = [service decrypt:encryptedData];
+
+    // should match
+    NSString* decryptedString = [[NSString alloc] initWithData:decryptedData encoding:NSUTF8StringEncoding];
+    
+    if ([@"password" isEqualToString:decryptedString]) {
+        NSLog(@"SUCCESS");
+    } else {
+        NSLog(@"FAILURE");
+    }
+    
     return YES;
 }
 
